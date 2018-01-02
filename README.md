@@ -17,3 +17,12 @@ Things you'll need to do:
 * [Tutorial file format](https://github.com/CSSE1001/MyPyTutor/wiki/Tutorial-Format) for `.tut` directories
 * [Summary of tasks/problems](https://github.com/CSSE1001/MyPyTutor/wiki/Problems)
 * [Client/Server communication protocols](https://github.com/CSSE1001/MyPyTutor/wiki/Server-Communication)
+
+## Creating the Export Zip
+
+Requirements:
+- pandoc (https://pandoc.org/)[https://pandoc.org/]
+
+1. Create the `export` folder if it does not exist
+2. Run the script `./extract_questions.py`
+3. Zip the export folder
