@@ -1,3 +1,7 @@
+
+from visitor import TutorialNodeVisitor
+from analyser import CodeAnalyser
+
 class CodeVisitor(TutorialNodeVisitor):
     pass  # we actually only need the default behaviour here :)
 
@@ -112,3 +116,89 @@ class Analyser(CodeAnalyser):
 
 
 ANALYSER = Analyser(CodeVisitor)
+
+from cases import StudentTestCase
+
+class JustRunCodeAndDontTestAnything(StudentTestCase):
+    DESCRIPTION = 'Code compiles'
+    MAIN_TEST = 'test_main'
+
+    def test_main(self):
+
+        def _show_student_code():
+            root = tk.Tk()
+
+            def poll():
+                root.after(500, poll)
+            root.after(500, poll)
+
+            from signal import signal, SIGINT
+            def signal_handler(signal, frame):
+                """ Catches the quit signal """
+                root.destroy()
+
+            create_layout(root)
+            signal(SIGINT, signal_handler)
+            root.mainloop()
+
+        _ = self.run_in_student_context(_show_student_code)
+
+TEST_CLASSES = [
+    JustRunCodeAndDontTestAnything,
+]
+## GENERATED TEST CODE
+from tester import TutorialTester
+from results import TutorialTestResult
+from inspect import getmembers, isclass
+from sys import modules, exit
+from os import getcwd, path, devnull
+from json import dumps
+from contextlib import redirect_stdout
+
+def generate_test_result(test_result):
+    return {
+        "name": test_result.description,
+        "correct": test_result.status == TutorialTestResult.PASS,
+        "output": test_result.message
+    }
+
+def generate_gui_result(message):
+    return {
+        "name": "Error",
+        "correct": False,
+        "output": message
+    }
+
+attempt_file = path.join(path.dirname(__file__), "attempt.py")
+
+with open(attempt_file, "r") as script:
+    # Where do we get the locals from?
+    t = TutorialTester(TEST_CLASSES, {})
+    # True will wrap the tests
+    text = script.read()
+    with redirect_stdout(devnull):
+        t.run(text, False)
+
+    ANALYSER.analyse(text)
+
+    json_results = []
+
+    failed = False
+    for result in t.results:
+        if result.status != "PASS":
+            failed = True
+        json_results.append(generate_test_result(result))
+    
+    for error in ANALYSER.errors:
+        failed = True
+        json_results.append(generate_gui_result(error))
+    
+    for warning in ANALYSER.warnings:
+        failed = True
+        json_results.append(generate_gui_result(warning))
+        
+
+    print(dumps(json_results))
+
+    if failed:
+        exit(1)

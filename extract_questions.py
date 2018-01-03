@@ -16,8 +16,8 @@ PROBLEMS = "problem_db"
 OUTDIR = "export"
 
 PRE_ANALYSIS_CODE = """
-from tutorlib.analysis.visitor import TutorialNodeVisitor
-from tutorlib.analysis.analyser import CodeAnalyser
+from visitor import TutorialNodeVisitor
+from analyser import CodeAnalyser
 
 """
 
@@ -113,8 +113,6 @@ from sys import modules, exit
 from os import getcwd, path, devnull
 from json import dumps
 from contextlib import redirect_stdout
-
-from analysis import ANALYSER
 
 def generate_test_result(test_result):
     return {
@@ -221,27 +219,22 @@ for f in listdir(PROBLEMS):
         out_file = join(question_folder, "description.md")
         with open(out_file, "wb") as out:
             out.write(question)
+        
+        tests = PRE_ANALYSIS_CODE
+
+        # Append the analysis code to the tests
+        analysis_in = join(problem, "analysis.py")
+        with open(analysis_in, "r") as a_in:
+            tests += a_in.read() + "\n"
 
         test_file = join(problem, "tests.py")
-        tests = create_tests(test_file, question_name)
+        tests += create_tests(test_file, question_name)
         out_file = join(question_folder, "tests.py")
         with open(out_file, "w") as out:
             out.write(tests)
 
-        analysis_in = join(problem, "analysis.py")
-        analysis_out = join(question_folder, "analysis.py")
-        with open(analysis_in, "r") as a_in:
-            with open(analysis_out, "w") as a_out:
-                a_out.write(PRE_ANALYSIS_CODE)
-                a_out.write(a_in.read())
-
         attempt_in = join(problem, "preload.py")
         attempt_out = join(question_folder, "attempt.py")
         copyfile(attempt_in, attempt_out)
-
-        if question_name in GUI_TEST_CASES:
-            support_in = join(problem, "support.py")
-            support_out = join(question_folder, "gui_support.py")
-            copyfile(support_in, support_out)
 
         print("Finished processing: '" + question_name + "'")
