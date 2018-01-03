@@ -14,3 +14,5 @@ code/mypytutor.cfg
 code/results.csv
 
 .idea/
+
+.DS_Store

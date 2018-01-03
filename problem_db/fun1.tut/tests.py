@@ -1,3 +1,5 @@
+from unittest import main
+
 class TestPositiveNumber(StudentTestCase):
     DESCRIPTION = "'2' -> '6'"
     MAIN_TEST = 'test_main'
@@ -59,9 +61,8 @@ class TestNegativeNumber(StudentTestCase):
         expected_output = '0\n'  # 2*(-1 + 1)
         self.assertEqual(self.standard_output, expected_output)
 
-
 TEST_CLASSES = [
     TestPositiveNumber,
     TestZeroNumber,
-    TestNegativeNumber,
+    TestNegativeNumber
 ]
