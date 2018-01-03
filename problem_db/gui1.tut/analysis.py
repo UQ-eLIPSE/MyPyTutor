@@ -1,3 +1,6 @@
+from tutorlib.analysis.visitor import TutorialNodeVisitor
+from tutorlib.analysis.analyser import CodeAnalyser
+
 class CodeVisitor(TutorialNodeVisitor):
     pass  # we actually only need the default behaviour here :)
 
@@ -112,3 +115,4 @@ class Analyser(CodeAnalyser):
 
 
 ANALYSER = Analyser(CodeVisitor)
+ANALYSER.analyse()

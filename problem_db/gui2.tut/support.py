@@ -43,7 +43,6 @@ class _TestWindow(tk.Toplevel):
     def ok(self, event=None):
         self.destroy()
 
-
 def _get_window():
     tw = _TestWindow(None, 'Layout')  # no master: root window
     return tw, tw.frame_problem

@@ -15,6 +15,12 @@ from datetime import datetime
 PROBLEMS = "problem_db"
 OUTDIR = "export"
 
+PRE_ANALYSIS_CODE = """
+from tutorlib.analysis.visitor import TutorialNodeVisitor
+from tutorlib.analysis.analyser import CodeAnalyser
+
+"""
+
 PRE_TEST_CODE = """from cases import StudentTestCase
 
 """
@@ -99,6 +105,66 @@ with open(attempt_file, "r") as script:
         exit(1)
 """
 
+GUI_TEST_CODE = """## GENERATED TEST CODE
+from tester import TutorialTester
+from results import TutorialTestResult
+from inspect import getmembers, isclass
+from sys import modules, exit
+from os import getcwd, path, devnull
+from json import dumps
+from contextlib import redirect_stdout
+
+from analysis import ANALYSER
+
+def generate_test_result(test_result):
+    return {
+        "name": test_result.description,
+        "correct": test_result.status == TutorialTestResult.PASS,
+        "output": test_result.message
+    }
+
+def generate_gui_result(message):
+    return {
+        "name": "Error",
+        "correct": False,
+        "output": message
+    }
+
+attempt_file = path.join(path.dirname(__file__), "attempt.py")
+
+with open(attempt_file, "r") as script:
+    # Where do we get the locals from?
+    t = TutorialTester(TEST_CLASSES, {})
+    # True will wrap the tests
+    text = script.read()
+    with redirect_stdout(devnull):
+        t.run(text, False)
+
+    ANALYSER.analyse(text)
+
+    json_results = []
+
+    failed = False
+    for result in t.results:
+        if result.status != "PASS":
+            failed = True
+        json_results.append(generate_test_result(result))
+    
+    for error in ANALYSER.errors:
+        failed = True
+        json_results.append(generate_gui_result(error))
+    
+    for warning in ANALYSER.warnings:
+        failed = True
+        json_results.append(generate_gui_result(warning))
+        
+
+    print(dumps(json_results))
+
+    if failed:
+        exit(1)
+"""
+
 # A list of test cases that must be wrapped
 WRAPPED_TEST_CASES = [
     "while_break_average",
@@ -112,6 +178,12 @@ WRAPPED_TEST_CASES = [
     "if_sign",
     "if_abs",
     "fun1"
+]
+
+GUI_TEST_CASES = [
+    "gui1",
+    "gui2",
+    "gui3"
 ]
 
 def run_pandoc(filename):
@@ -128,6 +200,8 @@ def create_tests(filename, problem_name):
     print("Problem name: " + problem_name)
     if problem_name in WRAPPED_TEST_CASES:
         tests += WRAPPED_TEST_CODE
+    elif problem_name in GUI_TEST_CASES:
+        tests += GUI_TEST_CODE
     else:
         tests += TEST_CODE
     return tests
@@ -156,10 +230,18 @@ for f in listdir(PROBLEMS):
 
         analysis_in = join(problem, "analysis.py")
         analysis_out = join(question_folder, "analysis.py")
-        copyfile(analysis_in, analysis_out)
+        with open(analysis_in, "r") as a_in:
+            with open(analysis_out, "w") as a_out:
+                a_out.write(PRE_ANALYSIS_CODE)
+                a_out.write(a_in.read())
 
         attempt_in = join(problem, "preload.py")
         attempt_out = join(question_folder, "attempt.py")
         copyfile(attempt_in, attempt_out)
+
+        if question_name in GUI_TEST_CASES:
+            support_in = join(problem, "support.py")
+            support_out = join(question_folder, "gui_support.py")
+            copyfile(support_in, support_out)
 
         print("Finished processing: '" + question_name + "'")

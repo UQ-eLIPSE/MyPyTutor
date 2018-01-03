@@ -23,6 +23,5 @@ Things you'll need to do:
 Requirements:
 - pandoc (https://pandoc.org/)[https://pandoc.org/]
 
-1. Create the `export` folder if it does not exist
-2. Run the script `./extract_questions.py`
-3. Zip the export folder
+1. Run `make export`
+2. Zip the export folder

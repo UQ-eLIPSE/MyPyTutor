@@ -32,3 +32,10 @@ build: tutorials $(BUILD)
 
 push:
 	./sync CSSE1001Tutorials
+
+export:
+	mkdir export
+	./extract_questions.py
+
+cleanexport:
+	rm -rfv export/*
