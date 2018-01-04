@@ -132,12 +132,13 @@ class JustRunCodeAndDontTestAnything(StudentTestCase):
                 root.after(500, poll)
             root.after(500, poll)
 
-            from signal import signal, SIGINT
+            from signal import signal, SIGTERM, SIGINT
             def signal_handler(signal, frame):
                 """ Catches the quit signal """
                 root.destroy()
 
             create_layout(root)
+            signal(SIGTERM, signal_handler)
             signal(SIGINT, signal_handler)
             root.mainloop()
 

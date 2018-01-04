@@ -1,5 +1,3 @@
-from gui_support import _get_window
-
 class JustRunCodeAndDontTestAnything(StudentTestCase):
     DESCRIPTION = 'Code compiles'
     MAIN_TEST = 'test_main'
@@ -13,13 +11,13 @@ class JustRunCodeAndDontTestAnything(StudentTestCase):
                 root.after(500, poll)
             root.after(500, poll)
 
-            from signal import signal, SIGINT
+            from signal import signal, SIGTERM
             def signal_handler(signal, frame):
                 """ Catches the quit signal """
                 root.destroy()
 
             create_layout(root)
-            signal(SIGINT, signal_handler)
+            signal(SIGTERM, signal_handler)
             root.mainloop()
 
         _ = self.run_in_student_context(_show_student_code)
