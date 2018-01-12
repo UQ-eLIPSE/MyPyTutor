@@ -21,7 +21,8 @@ Things you'll need to do:
 ## Creating the Export Zip
 
 Requirements:
-- pandoc (https://pandoc.org/)[https://pandoc.org/]
+- pandoc [https://pandoc.org/](https://pandoc.org/)
 
-1. Run `make export`
-2. Zip the export folder
+1. `rm export/*`
+2. `python3 extract_questions.py`
+3. `zip -r export.zip export/*`
